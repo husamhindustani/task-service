@@ -1,0 +1,105 @@
+# =============================================================================
+# Spring Boot Application Configuration
+# =============================================================================
+# This file configures the application behavior.
+# Spring Boot uses sensible defaults, so we only override what we need.
+#
+# Configuration can be overridden by:
+# 1. Environment variables (SPRING_DATASOURCE_URL)
+# 2. Command line arguments (--spring.datasource.url=...)
+# 3. Profile-specific files (application-prod.yaml)
+# =============================================================================
+
+spring:
+  application:
+    name: task-service
+
+  # =============================================================================
+  # Database Configuration (PostgreSQL)
+  # =============================================================================
+  # Default values for local development.
+  # Override with environment variables in Docker/Kubernetes.
+  
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/taskdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    
+    # HikariCP connection pool settings
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 30000
+
+  # =============================================================================
+  # JPA / Hibernate Configuration
+  # =============================================================================
+  jpa:
+    # Show SQL queries in logs (useful for debugging)
+    show-sql: true
+    
+    hibernate:
+      # DDL handling - let Flyway manage schema, not Hibernate
+      ddl-auto: validate
+    
+    properties:
+      hibernate:
+        # Format SQL in logs for readability
+        format_sql: true
+        # PostgreSQL dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # =============================================================================
+  # Flyway Database Migration
+  # =============================================================================
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # Baseline on migrate for existing databases
+    baseline-on-migrate: true
+
+# =============================================================================
+# Server Configuration
+# =============================================================================
+server:
+  port: 8080
+  
+  # Graceful shutdown (important for Kubernetes)
+  shutdown: graceful
+
+# =============================================================================
+# Actuator Configuration (for Kubernetes probes)
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose health, info, and metrics endpoints
+        include: health,info,metrics,prometheus
+  
+  endpoint:
+    health:
+      # Show detailed health information
+      show-details: always
+      # Enable liveness and readiness probes
+      probes:
+        enabled: true
+  
+  health:
+    # Enable liveness and readiness state
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  level:
+    root: INFO
+    com.example.taskservice: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG

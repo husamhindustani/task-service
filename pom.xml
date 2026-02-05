@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Project coordinates -->
+    <groupId>com.example</groupId>
+    <artifactId>task-service</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Task Service</name>
+    <description>A simple task management REST API</description>
+
+    <!-- Spring Boot parent - provides dependency management and sensible defaults -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.2</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <!-- Java version -->
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <!-- 
+            Spring Boot Starter Web
+            - Includes embedded Tomcat server
+            - Spring MVC for REST controllers
+            - JSON serialization with Jackson
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 
+            Spring Boot Starter Data JPA
+            - Hibernate ORM
+            - Spring Data repositories
+            - HikariCP connection pool
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- 
+            Spring Boot Starter Validation
+            - Bean validation (JSR-380)
+            - @NotNull, @Size, @Email, etc.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- 
+            Spring Boot Actuator
+            - Health check endpoints (/actuator/health)
+            - Metrics, info, and other production-ready features
+            - Essential for Kubernetes probes
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 
+            PostgreSQL JDBC Driver
+            - Required for connecting to PostgreSQL database
+        -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 
+            Flyway Database Migrations
+            - Version control for database schema
+            - Ensures consistent schema across environments
+        -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <!-- 
+            Lombok (optional but reduces boilerplate)
+            - @Data, @Builder, @NoArgsConstructor, etc.
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Testing dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+    <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+</repositories>
+
+<pluginRepositories>
+    <pluginRepository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </pluginRepository>
+</pluginRepositories>
+
+    <build>
+        <plugins>
+            <!-- 
+                Spring Boot Maven Plugin
+                - Creates executable JAR
+                - Includes all dependencies
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
