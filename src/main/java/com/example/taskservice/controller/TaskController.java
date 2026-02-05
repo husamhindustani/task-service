@@ -6,6 +6,11 @@ import com.example.taskservice.dto.UpdateTaskRequest;
 import com.example.taskservice.model.Task;
 import com.example.taskservice.model.TaskStatus;
 import com.example.taskservice.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +22,14 @@ import java.util.stream.Collectors;
 /**
  * REST Controller for Task operations.
  * 
- * Now uses DTOs to separate API models from database entities:
+ * Uses DTOs to separate API models from database entities:
  * - TaskDTO: Response object (what clients receive)
  * - CreateTaskRequest: Request for creating tasks
  * - UpdateTaskRequest: Request for updating tasks
- * 
- * This provides:
- * - Control over what data is exposed
- * - Separation between API contract and database schema
- * - Different validation rules for create vs update
  */
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "Task management operations")
 public class TaskController {
 
     private final TaskService taskService;
@@ -37,15 +38,16 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    /**
-     * GET /api/tasks
-     * List all tasks, optionally filtered by status.
-     * 
-     * @param status Optional query parameter to filter by status
-     * @return List of TaskDTOs
-     */
+    @Operation(
+            summary = "Get all tasks",
+            description = "Retrieves all tasks, optionally filtered by status"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved tasks")
+    })
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks(
+            @Parameter(description = "Filter by task status")
             @RequestParam(required = false) TaskStatus status) {
         
         List<Task> tasks;
@@ -55,7 +57,6 @@ public class TaskController {
             tasks = taskService.getAllTasks();
         }
         
-        // Convert entities to DTOs
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -63,106 +64,108 @@ public class TaskController {
         return ResponseEntity.ok(taskDTOs);
     }
 
-    /**
-     * GET /api/tasks/{id}
-     * Get a specific task by ID.
-     * 
-     * @param id Task ID from URL path
-     * @return TaskDTO if found
-     */
+    @Operation(
+            summary = "Get task by ID",
+            description = "Retrieves a specific task by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Task found"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+    public ResponseEntity<TaskDTO> getTaskById(
+            @Parameter(description = "Task ID", required = true)
+            @PathVariable Long id) {
         Task task = taskService.getTaskById(id);
         return ResponseEntity.ok(TaskDTO.fromEntity(task));
     }
 
-    /**
-     * POST /api/tasks
-     * Create a new task.
-     * 
-     * @param request CreateTaskRequest from request body (JSON)
-     * @return Created TaskDTO with 201 status
-     * 
-     * Note: Client can only set title and description.
-     * ID, status, and timestamps are handled by the system.
-     */
+    @Operation(
+            summary = "Create a new task",
+            description = "Creates a new task with PENDING status. ID and timestamps are auto-generated."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Task created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody CreateTaskRequest request) {
-        // Convert request DTO to entity
+    public ResponseEntity<TaskDTO> createTask(
+            @Valid @RequestBody CreateTaskRequest request) {
         Task task = request.toEntity();
-        
-        // Create the task
         Task createdTask = taskService.createTask(task);
-        
-        // Return response DTO
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(TaskDTO.fromEntity(createdTask));
     }
 
-    /**
-     * PUT /api/tasks/{id}
-     * Update an existing task.
-     * 
-     * @param id Task ID to update
-     * @param request UpdateTaskRequest with updated data
-     * @return Updated TaskDTO
-     */
+    @Operation(
+            summary = "Update a task",
+            description = "Updates an existing task's title, description, and/or status"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Task updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Task not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(
+            @Parameter(description = "Task ID", required = true)
             @PathVariable Long id,
             @Valid @RequestBody UpdateTaskRequest request) {
         
-        // Create a task entity with the update data
         Task taskDetails = new Task();
         taskDetails.setTitle(request.getTitle());
         taskDetails.setDescription(request.getDescription());
         taskDetails.setStatus(request.getStatus());
         
         Task updatedTask = taskService.updateTask(id, taskDetails);
-        
         return ResponseEntity.ok(TaskDTO.fromEntity(updatedTask));
     }
 
-    /**
-     * PATCH /api/tasks/{id}/status
-     * Update only the status of a task.
-     * 
-     * Using PATCH for partial updates (only changing status)
-     * 
-     * @param id Task ID
-     * @param status New status
-     * @return Updated TaskDTO
-     */
+    @Operation(
+            summary = "Update task status",
+            description = "Updates only the status of a task (partial update)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     @PatchMapping("/{id}/status")
     public ResponseEntity<TaskDTO> updateTaskStatus(
+            @Parameter(description = "Task ID", required = true)
             @PathVariable Long id,
+            @Parameter(description = "New status", required = true)
             @RequestParam TaskStatus status) {
         Task updatedTask = taskService.updateTaskStatus(id, status);
         return ResponseEntity.ok(TaskDTO.fromEntity(updatedTask));
     }
 
-    /**
-     * DELETE /api/tasks/{id}
-     * Delete a task.
-     * 
-     * @param id Task ID to delete
-     * @return 204 No Content on success
-     */
+    @Operation(
+            summary = "Delete a task",
+            description = "Permanently deletes a task"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(
+            @Parameter(description = "Task ID", required = true)
+            @PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * GET /api/tasks/search
-     * Search tasks by title.
-     * 
-     * @param q Search query
-     * @return Matching TaskDTOs
-     */
+    @Operation(
+            summary = "Search tasks",
+            description = "Search tasks by title (case-insensitive)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Search completed")
+    })
     @GetMapping("/search")
-    public ResponseEntity<List<TaskDTO>> searchTasks(@RequestParam String q) {
+    public ResponseEntity<List<TaskDTO>> searchTasks(
+            @Parameter(description = "Search query", required = true)
+            @RequestParam String q) {
         List<Task> tasks = taskService.searchTasks(q);
         
         List<TaskDTO> taskDTOs = tasks.stream()

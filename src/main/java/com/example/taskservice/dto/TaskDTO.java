@@ -2,6 +2,7 @@ package com.example.taskservice.dto;
 
 import com.example.taskservice.model.Task;
 import com.example.taskservice.model.TaskStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
@@ -11,13 +12,25 @@ import java.time.LocalDateTime;
  * This is what clients receive when requesting task data.
  * We control exactly what fields are exposed.
  */
+@Schema(description = "Task response object")
 public class TaskDTO {
 
+    @Schema(description = "Unique task identifier", example = "1")
     private Long id;
+
+    @Schema(description = "Task title", example = "Learn Docker")
     private String title;
+
+    @Schema(description = "Detailed task description", example = "Complete Module 2 of the course")
     private String description;
+
+    @Schema(description = "Current task status", example = "PENDING")
     private TaskStatus status;
+
+    @Schema(description = "When the task was created", example = "2026-02-05T10:30:00")
     private LocalDateTime createdAt;
+
+    @Schema(description = "When the task was last updated", example = "2026-02-05T14:45:00")
     private LocalDateTime updatedAt;
 
     // Default constructor

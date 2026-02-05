@@ -1,6 +1,7 @@
 package com.example.taskservice.dto;
 
 import com.example.taskservice.model.Task;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -12,12 +13,22 @@ import jakarta.validation.constraints.Size;
  * - No status (defaults to PENDING)
  * - No timestamps (auto-generated)
  */
+@Schema(description = "Request body for creating a new task")
 public class CreateTaskRequest {
 
+    @Schema(
+            description = "Task title",
+            example = "Learn Docker",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     @NotBlank(message = "Title is required")
     @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
     private String title;
 
+    @Schema(
+            description = "Detailed task description (optional)",
+            example = "Complete Module 2 of the Docker/Kubernetes course"
+    )
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
 
