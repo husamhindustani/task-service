@@ -30,8 +30,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     
     # Expose port to host (optional - for connecting with local tools)
+    # Using 5433 to avoid conflict with host PostgreSQL on 5432
     ports:
-      - "5432:5432"
+      - "5433:5432"
     
     # Health check - Compose waits for this before starting dependent services
     healthcheck:
