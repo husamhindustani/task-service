@@ -1,0 +1,44 @@
+# =============================================================================
+# .dockerignore - Files to exclude from Docker build context
+# =============================================================================
+# Similar to .gitignore, but for Docker builds.
+# Excluding files makes the build context smaller and faster to transfer.
+# =============================================================================
+
+# Build output (we rebuild inside Docker)
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Environment files (secrets should be passed at runtime, not built in)
+.env
+.env.*
+
+# Documentation (not needed in container)
+*.md
+docs/
+
+# Docker files (don't need to copy into the build)
+Dockerfile
+docker-compose*.yaml
+.dockerignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test files (optional - include if you want to run tests in Docker)
+# src/test/
