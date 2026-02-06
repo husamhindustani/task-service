@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-service-config
+  namespace: task-service-ns
+  labels:
+    app: task-service
+data:
+  # Database connection (host is the K8s service name for PostgreSQL)
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/taskdb"
+  
+  # Spring profiles
+  SPRING_PROFILES_ACTIVE: "prod"
+  
+  # Actuator endpoints for health checks
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics"
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"

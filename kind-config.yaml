@@ -1,0 +1,19 @@
+# Kind cluster configuration with NodePort exposure
+# This maps ports from the Kind container to your Mac's localhost
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  # Control plane node
+  - role: control-plane
+    extraPortMappings:
+      # Map NodePort 30080 to localhost:30080
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+      # Map NodePort 30081 for future services
+      - containerPort: 30081
+        hostPort: 30081
+        protocol: TCP
+  # Worker nodes
+  - role: worker
+  - role: worker
