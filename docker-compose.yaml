@@ -1,0 +1,86 @@
+# =============================================================================
+# Docker Compose Configuration
+# =============================================================================
+# Docker Compose lets you define and run multi-container applications.
+# With one command (docker-compose up), you start all services.
+#
+# This file defines:
+# - app: Your Java Task Service
+# - db: PostgreSQL database
+#
+# Both containers run on a shared network and can communicate by service name.
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # PostgreSQL Database
+  # ===========================================================================
+  db:
+    image: postgres:16-alpine        # Official PostgreSQL image (Alpine = smaller)
+    container_name: task-db          # Explicit name for easier reference
+    
+    # Environment variables configure PostgreSQL
+    environment:
+      POSTGRES_DB: taskdb            # Database name (created on first start)
+      POSTGRES_USER: taskuser        # Database user
+      POSTGRES_PASSWORD: taskpass    # Database password (use secrets in production!)
+    
+    # Persist data even when container is removed
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+    # Expose port to host (optional - for connecting with local tools)
+    ports:
+      - "5432:5432"
+    
+    # Health check - Compose waits for this before starting dependent services
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d taskdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    # Restart policy
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Task Service Application
+  # ===========================================================================
+  app:
+    build:
+      context: .                     # Build from current directory
+      dockerfile: Dockerfile         # Using our Dockerfile
+    container_name: task-service     # Explicit container name
+    
+    # Environment variables override application.yaml defaults
+    environment:
+      # "db" is the service name - Docker's DNS resolves it to the container IP
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/taskdb
+      SPRING_DATASOURCE_USERNAME: taskuser
+      SPRING_DATASOURCE_PASSWORD: taskpass
+      # Optional: Set Spring profile
+      # SPRING_PROFILES_ACTIVE: docker
+    
+    # Map container port 8080 to host port 8080
+    ports:
+      - "8080:8080"
+    
+    # Wait for database to be healthy before starting
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    # Restart policy
+    restart: unless-stopped
+
+# =============================================================================
+# Named Volumes
+# =============================================================================
+# Named volumes persist data beyond container lifecycle.
+# Even if you run 'docker-compose down', data is preserved.
+# Use 'docker-compose down -v' to remove volumes too.
+# =============================================================================
+volumes:
+  postgres_data:
+    name: task-service-postgres-data
