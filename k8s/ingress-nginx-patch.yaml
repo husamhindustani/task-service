@@ -1,0 +1,23 @@
+# Patch for ingress-nginx-controller to run on control-plane node
+# Apply after installing ingress-nginx:
+#   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+#   kubectl patch deployment ingress-nginx-controller -n ingress-nginx --patch-file k8s/ingress-nginx-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  template:
+    spec:
+      # Schedule only on nodes with ingress-ready label (control-plane in our Kind config)
+      nodeSelector:
+        ingress-ready: "true"
+      # Allow scheduling on control-plane despite its NoSchedule taint
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
