@@ -2,7 +2,6 @@ package com.example.taskservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,37 +12,26 @@ import java.util.List;
 /**
  * OpenAPI/Swagger configuration.
  * 
- * This configures the API documentation metadata that appears
- * in the Swagger UI at /swagger-ui.html
+ * Configures the API documentation with proper server URLs
+ * for both local development and Kubernetes deployment.
  */
 @Configuration
-public class OpenAPIConfig {
-
-    @Value("${server.port:8080}")
-    private String serverPort;
+public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info()
-                        .title("Task Service API")
-                        .version("1.0.0")
-                        .description("""
-                                A simple task management REST API
-                                
-                                ## Features
-                                - Create, read, update, and delete tasks
-                                - Filter tasks by status
-                                - Search tasks by title
-                                
-                                """)
-                        .license(new License()
-                                .name("MIT License")
-                                .url("https://opensource.org/licenses/MIT")))
-                .servers(List.of(
-                        new Server()
-                                .url("http://localhost:" + serverPort)
-                                .description("Local development server")
-                ));
+            .info(new Info()
+                .title("Task Service API")
+                .version("1.0.0")
+                .description("REST API for managing tasks"))
+            .servers(List.of(
+                // Relative URL - uses whatever host/port the browser accessed
+                new Server().url("/").description("Current server"),
+                // Explicit servers for different environments
+                new Server().url("http://localhost").description("Kubernetes Ingress (port 80)"),
+                new Server().url("http://localhost:30080").description("Kubernetes NodePort"),
+                new Server().url("http://localhost:8080").description("Local development")
+            ));
     }
 }

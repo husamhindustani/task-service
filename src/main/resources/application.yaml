@@ -115,3 +115,11 @@ springdoc:
     operationsSorter: method           # Sort by HTTP method
     tagsSorter: alpha                  # Sort tags alphabetically
     tryItOutEnabled: true              # Enable "Try it out" by default
+    # Use the current URL (from browser) instead of hardcoded server
+    url: /api-docs
+    configUrl: /api-docs/swagger-config
+  # Use forwarded headers to determine the correct server URL
+  use-fqdn: false
+  
+# Forward headers support (for Ingress/proxy)
+server.forward-headers-strategy: framework

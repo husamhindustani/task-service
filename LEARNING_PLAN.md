@@ -272,204 +272,224 @@ docker pull husamhindustani/task-service:1.0.0
 
 ---
 
-## Module 5: Kubernetes Concepts
+## Module 5: Kubernetes Concepts ✅ COMPLETED
 
-### Step 5.1: Kubernetes Architecture
-- [ ] Understand the control plane (API server, etcd, scheduler, controller manager)
-- [ ] Understand worker nodes (kubelet, kube-proxy, container runtime)
-- [ ] Learn about the declarative model
+### Step 5.1: Kubernetes Architecture ✅
+- [x] Understand the control plane (API server, etcd, scheduler, controller manager)
+- [x] Understand worker nodes (kubelet, kube-proxy, container runtime)
+- [x] Learn about the declarative model
 
-**Key concepts:**
-- Desired state vs current state
-- Reconciliation loops
-- API-driven architecture
+**Key concepts covered:**
+- **Control Plane**: API Server (gateway), etcd (state store), Scheduler (pod placement), Controller Manager (reconciliation)
+- **Worker Nodes**: kubelet (pod management), kube-proxy (networking), container runtime (containerd)
+- Desired state vs current state - Kubernetes continuously reconciles
+- Docker Engine vs containerd distinction
 
-### Step 5.2: Core Resources - Pods
-- [ ] Understand what a Pod is
-- [ ] Learn Pod lifecycle
-- [ ] Create a Pod manifest (YAML)
-- [ ] Run and inspect a Pod
+### Step 5.2: Core Resources - Pods ✅
+- [x] Understand what a Pod is
+- [x] Learn Pod lifecycle
+- [x] Understand multi-container pods (sidecars)
 
-**Key concepts:**
-- Pods as the atomic unit
-- Container co-location
-- Pod networking (shared localhost)
+**Key concepts covered:**
+- Pods as smallest deployable unit
+- Container co-location and shared network namespace
+- Why not create Pods directly (use Deployments)
 
-### Step 5.3: Core Resources - Deployments
-- [ ] Understand Deployments and ReplicaSets
-- [ ] Create a Deployment manifest
-- [ ] Learn about replicas and scaling
-- [ ] Understand rolling updates
+### Step 5.3: Core Resources - Deployments ✅
+- [x] Understand Deployments and ReplicaSets
+- [x] Create a Deployment manifest
+- [x] Learn about replicas and scaling
+- [x] Understand rolling updates
 
-**Key concepts:**
-- Declarative updates
-- Rollback capability
-- Self-healing
+**Key concepts covered:**
+- Deployments manage ReplicaSets manage Pods
+- Self-healing - failed pods are replaced
+- Declarative updates vs imperative
 
-### Step 5.4: Core Resources - Services
-- [ ] Understand Service types (ClusterIP, NodePort, LoadBalancer)
-- [ ] Create a Service manifest
-- [ ] Learn about service discovery (DNS)
-- [ ] Understand label selectors
+### Step 5.4: Core Resources - Services ✅
+- [x] Understand Service types (ClusterIP, NodePort, LoadBalancer)
+- [x] Create a Service manifest
+- [x] Learn about service discovery (DNS)
+- [x] Understand label selectors
 
-**Key concepts:**
-- Stable network endpoints
-- Load balancing
-- Service discovery
+**Service types understood:**
+| Type | Use Case |
+|------|----------|
+| ClusterIP | Internal communication |
+| NodePort | Development/testing external access |
+| LoadBalancer | Production external access (cloud) |
 
-### Step 5.5: Configuration - ConfigMaps & Secrets
-- [ ] Understand externalized configuration
-- [ ] Create ConfigMaps for app config
-- [ ] Create Secrets for sensitive data
-- [ ] Mount as environment variables or files
+### Step 5.5: Configuration - ConfigMaps & Secrets ✅
+- [x] Understand externalized configuration
+- [x] Create ConfigMaps for app config
+- [x] Create Secrets for sensitive data
+- [x] Mount as environment variables
 
-**Key concepts:**
-- Separation of config from code
-- Secret management
-- Configuration updates
+**Key insight:**
+- Secrets are base64 encoded, NOT encrypted by default
+- Enable "encryption at rest" in etcd for true security
 
 ---
 
-## Module 6: Local Kubernetes Setup
+## Module 6: Local Kubernetes Setup ✅ COMPLETED
 
-### Step 6.1: Choose Your Local Cluster
-- [ ] Option A: Enable Kubernetes in Docker Desktop
-- [ ] Option B: Install Minikube
-- [ ] Option C: Install Kind (Kubernetes in Docker)
-- [ ] Verify cluster is running
+### Step 6.1: Choose Your Local Cluster ✅
+- [x] Chose Kind (Kubernetes in Docker) for multi-node support
+- [x] Configured 3-node cluster (1 control-plane, 2 workers)
+- [x] Enabled containerd image store
 
-**Commands to verify:**
+**Kind vs kubeadm:**
+| kubeadm | Kind |
+|---------|------|
+| Real VMs/bare metal | Docker containers as nodes |
+| Production bootstrapping | Local dev/testing |
+| Heavier | Lightweight |
+
+### Step 6.2: kubectl Essentials ✅
+- [x] Learn kubectl syntax: `kubectl <verb> <resource>`
+- [x] Master essential commands
+- [x] Understand output formats (-o yaml, -o wide)
+
+**Key commands mastered:**
 ```bash
-kubectl cluster-info
-kubectl get nodes
-kubectl get namespaces
-```
-
-### Step 6.2: kubectl Essentials
-- [ ] Learn kubectl syntax: `kubectl <verb> <resource>`
-- [ ] Master essential commands
-- [ ] Understand output formats (yaml, json, wide)
-
-**Essential commands:**
-```bash
-kubectl get pods
-kubectl get deployments
-kubectl get services
+kubectl get pods -n <namespace> -o wide
 kubectl describe pod <name>
 kubectl logs <pod-name>
 kubectl exec -it <pod-name> -- /bin/sh
 kubectl apply -f <file.yaml>
 kubectl delete -f <file.yaml>
+kubectl wait --for=condition=ready
+kubectl rollout restart deployment/<name>
+kubectl set image deployment/<name> <container>=<image>
 ```
 
-### Step 6.3: Namespaces
-- [ ] Understand namespace isolation
-- [ ] Create a namespace for your project
-- [ ] Set default namespace context
+### Step 6.3: Namespaces ✅
+- [x] Understand namespace isolation
+- [x] Created `task-service-ns` namespace
+- [x] Created namespace manifest for reproducibility
+
+**Key concepts covered:**
+- kubectl context and kubeconfig (~/.kube/config)
+- Taints and tolerations (NoSchedule on control-plane)
 
 ---
 
-## Module 7: Deploying the Java Service (Stateless)
+## Module 7: Deploying the Java Service (Stateless) ✅ COMPLETED
 
-### Step 7.1: Create Deployment Manifest
-- [ ] Write the Deployment YAML
-- [ ] Configure replicas
-- [ ] Set resource requests and limits
-- [ ] Reference image from Docker Hub
-- [ ] Apply and verify
+### Step 7.1: Create Deployment Manifest ✅
+- [x] Write the Deployment YAML with 2 replicas
+- [x] Set resource requests and limits
+- [x] Reference image from Docker Hub
+- [x] Apply and verify
 
-### Step 7.2: Create Service Manifest
-- [ ] Write the Service YAML
-- [ ] Choose appropriate Service type
-- [ ] Apply and verify connectivity
+### Step 7.2: Create Service Manifest ✅
+- [x] Write NodePort Service YAML (port 30080)
+- [x] Verify connectivity via curl
 
-### Step 7.3: Add Health Probes
-- [ ] Understand liveness vs readiness probes
-- [ ] Configure HTTP probes for Spring Boot Actuator
-- [ ] Test probe behavior
+### Step 7.3: Add Health Probes ✅
+- [x] Configured liveness, readiness, and startup probes
+- [x] Probes target Spring Boot Actuator endpoints
 
-**Key concepts:**
-- Liveness: Is the app alive? (restart if not)
-- Readiness: Can it handle traffic? (remove from load balancer if not)
-- Startup probes: For slow-starting apps
+**Probe behavior understood:**
+| Probe | Fails → |
+|-------|---------|
+| startupProbe | Container killed |
+| readinessProbe | Removed from Service endpoints |
+| livenessProbe | Container restarted |
 
-### Step 7.4: External Configuration
-- [ ] Create ConfigMap for application properties
-- [ ] Create Secret for database credentials
-- [ ] Mount as environment variables
-- [ ] Verify configuration is applied
+### Step 7.4: External Configuration ✅
+- [x] Created ConfigMap for application properties
+- [x] Created Secret for database credentials
+- [x] Mounted as environment variables via envFrom
 
----
-
-## Module 8: Deploying PostgreSQL (Stateful)
-
-### Step 8.1: Understanding StatefulSets
-- [ ] Learn differences from Deployments
-- [ ] Understand stable network identity
-- [ ] Understand stable storage
-
-**Key differences:**
-| Deployment | StatefulSet |
-|------------|-------------|
-| Random pod names | Ordered pod names (db-0, db-1) |
-| Shared storage (if any) | Per-pod storage |
-| Parallel startup | Sequential startup |
-| Any-order termination | Reverse-order termination |
-
-### Step 8.2: Persistent Volumes
-- [ ] Understand PersistentVolume (PV) and PersistentVolumeClaim (PVC)
-- [ ] Learn about storage classes
-- [ ] Create a PVC for PostgreSQL
-
-**Key concepts:**
-- Storage provisioning (static vs dynamic)
-- Access modes (ReadWriteOnce, ReadWriteMany)
-- Reclaim policies
-
-### Step 8.3: Create StatefulSet Manifest
-- [ ] Write StatefulSet YAML for PostgreSQL
-- [ ] Configure volumeClaimTemplates
-- [ ] Apply and verify
-
-### Step 8.4: Headless Service
-- [ ] Understand headless Services for StatefulSets
-- [ ] Create headless Service manifest
-- [ ] Understand DNS records created
-
-### Step 8.5: Connect App to Database
-- [ ] Update ConfigMap with database URL
-- [ ] Verify connectivity
-- [ ] Test data persistence (delete pod, verify data remains)
+**Kind-specific learning:**
+- NodePort not accessible on localhost without port mapping
+- Added `extraPortMappings` to kind-config.yaml
+- Alternative: use `kubectl port-forward`
 
 ---
 
-## Module 9: Kubernetes Networking
+## Module 8: Deploying PostgreSQL (Stateful) ✅ COMPLETED
 
-### Step 9.1: Pod Networking
-- [ ] Understand Pod IP addresses
-- [ ] Learn about CNI plugins
-- [ ] Test pod-to-pod communication
+### Step 8.1: Understanding StatefulSets ✅
+- [x] Learn differences from Deployments
+- [x] Understand stable network identity (postgres-0, postgres-1)
+- [x] Understand stable storage (per-pod PVC)
 
-### Step 9.2: Service Discovery
-- [ ] Understand Kubernetes DNS
-- [ ] Learn service FQDN format
-- [ ] Test DNS resolution from pods
+**Demonstrated data loss with emptyDir** - then fixed with PersistentVolumes
 
-**DNS format:**
+### Step 8.2: Persistent Volumes ✅
+- [x] Understand PV, PVC, and StorageClass relationship
+- [x] Dynamic provisioning via StorageClass
+- [x] Kind uses `local-path` provisioner (data lost on node failure)
+
+**PV/PVC analogy:**
+- PV = Physical apartment
+- PVC = Lease request
+- StorageClass = Apartment building type
+
+### Step 8.3: Create StatefulSet Manifest ✅
+- [x] Wrote StatefulSet YAML for PostgreSQL
+- [x] Configured volumeClaimTemplates (auto-creates PVC per pod)
+- [x] Applied and verified data persistence
+
+### Step 8.4: Headless Service ✅
+- [x] Created headless Service (clusterIP: None)
+- [x] Understand DNS records: `postgres-0.postgres-headless.task-service-ns.svc.cluster.local`
+
+**Why headless:** Enables direct pod addressing for primary/replica scenarios
+
+### Step 8.5: Connect App to Database ✅
+- [x] Verified connectivity via ConfigMap
+- [x] Tested data persistence (delete pod → data survives)
+
+**Production considerations discussed:**
+- Local storage = node failure loses data
+- Use network-attached storage (EBS, GCP PD) or managed databases (RDS)
+
+---
+
+## Module 9: Kubernetes Networking ✅ COMPLETED
+
+### Step 9.1: Pod Networking ✅
+- [x] Understand Pod IP addresses
+- [x] Learn no-NAT guarantee between pods
+- [x] CNI plugins (kindnet in Kind)
+
+**Key insight:** Service ClusterIP ≠ Pod IP
+- Service IP is stable, load-balanced
+- Pod IP changes on restart
+
+### Step 9.2: Service Discovery ✅
+- [x] Deep dive into Kubernetes DNS (CoreDNS)
+- [x] Explored /etc/resolv.conf in pods
+- [x] Understand search domains and ndots:5
+
+**DNS resolution flow:**
 ```
-<service-name>.<namespace>.svc.cluster.local
+postgres → postgres.task-service-ns.svc.cluster.local → ClusterIP → Pod IP
 ```
 
-### Step 9.3: Ingress
-- [ ] Understand Ingress resource
-- [ ] Install an Ingress controller (nginx)
-- [ ] Create Ingress manifest
-- [ ] Configure host-based routing
+### Step 9.3: Ingress ✅
+- [x] Installed nginx Ingress Controller
+- [x] Created Ingress manifest with host-based routing
+- [x] Fixed controller scheduling on control-plane node
+- [x] Created permanent fix with patch file
 
-**Key concepts:**
-- Layer 7 load balancing
-- TLS termination
-- Path-based routing
+**Files created:**
+- `k8s/ingress.yaml` - Ingress resource
+- `k8s/ingress-nginx-patch.yaml` - Fix for Kind
+- `scripts/setup-cluster.sh` - Full automation script
+
+**Key concepts covered:**
+- HTTP Host header for routing
+- Layer 7 vs Layer 4 load balancing
+- nodeSelector and tolerations
+
+### Bonus: CORS and Swagger Fix ✅
+- [x] Added CorsConfig.java for browser requests
+- [x] Added OpenApiConfig.java with multiple server options
+- [x] Fixed Swagger UI to work via Ingress
 
 ---
 
@@ -620,26 +640,36 @@ Common issues encountered during this course and their solutions:
 task-service/
 ├── src/                          # Java source code
 │   └── main/
-│       ├── java/                 # Application code
+│       ├── java/
+│       │   └── com/example/taskservice/
+│       │       ├── config/
+│       │       │   ├── CorsConfig.java      # CORS configuration
+│       │       │   └── OpenApiConfig.java   # Swagger server config
+│       │       ├── controller/
+│       │       ├── dto/
+│       │       ├── entity/
+│       │       ├── repository/
+│       │       └── TaskServiceApplication.java
 │       └── resources/
 │           ├── application.yaml  # Spring configuration
 │           └── db/migration/     # Flyway migrations
 ├── pom.xml                       # Maven build file
-├── Dockerfile                    # Container definition
+├── Dockerfile                    # Multi-stage container build
 ├── .dockerignore                 # Files to exclude from build
 ├── docker-compose.yaml           # Local development
-├── .env                          # Environment variables (git-ignored)
-├── .gitignore                    # Git exclusions
-├── k8s/                          # (To be created)
+├── kind-config.yaml              # Kind cluster configuration
+├── k8s/                          # Kubernetes manifests
 │   ├── namespace.yaml
 │   ├── configmap.yaml
-│   ├── secrets.yaml
-│   ├── app-deployment.yaml
-│   ├── app-service.yaml
-│   ├── postgres-statefulset.yaml
-│   ├── postgres-service.yaml
-│   └── ingress.yaml
-└── .github/workflows/            # (To be created)
+│   ├── secret.yaml
+│   ├── deployment.yaml           # Task service deployment
+│   ├── service.yaml              # NodePort service
+│   ├── postgres-statefulset.yaml # PostgreSQL with PVC
+│   ├── ingress.yaml              # Ingress routing
+│   └── ingress-nginx-patch.yaml  # Kind-specific fix
+├── scripts/
+│   └── setup-cluster.sh          # Cluster setup automation
+└── .github/workflows/            # (To be created in Module 11)
     └── deploy.yaml               # CI/CD pipeline
 ```
 
@@ -651,12 +681,12 @@ task-service/
 | Module 2: Docker Fundamentals | ✅ Completed | Multi-stage builds, layer caching |
 | Module 3: Docker Compose | ✅ Completed | Service discovery, healthchecks |
 | Module 4: Container Registry | ✅ Completed | Pushed to Docker Hub |
-| Module 5: Kubernetes Concepts | ⬜ Not Started | Next up! |
-| Module 6: Local K8s Setup | ⬜ Not Started | |
-| Module 7: Deploy Stateless | ⬜ Not Started | |
-| Module 8: Deploy Stateful | ⬜ Not Started | |
-| Module 9: K8s Networking | ⬜ Not Started | |
-| Module 10: Operations | ⬜ Not Started | |
+| Module 5: Kubernetes Concepts | ✅ Completed | Architecture, Pods, Deployments, Services, ConfigMaps, Secrets |
+| Module 6: Local K8s Setup | ✅ Completed | Kind with 3 nodes, kubectl, namespaces |
+| Module 7: Deploy Stateless | ✅ Completed | Deployment, Service, Probes, ConfigMap/Secret |
+| Module 8: Deploy Stateful | ✅ Completed | StatefulSet, PV/PVC, Headless Service |
+| Module 9: K8s Networking | ✅ Completed | DNS, Ingress, CORS fix |
+| Module 10: Operations | ⬜ Not Started | Next up! |
 | Module 11: CI/CD | ⬜ Not Started | |
 | Module 12: Production | ⬜ Not Started | |
 
@@ -664,15 +694,48 @@ task-service/
 
 ## Docker Hub Repository
 
-**Image:** `husamhindustani/task-service:1.0.0`
+**Image:** `husamhindustani/task-service:1.0.2`
+
+**Versions:**
+| Version | Changes |
+|---------|---------|
+| 1.0.0 | Initial release |
+| 1.0.1 | Added CORS support |
+| 1.0.2 | Fixed OpenAPI server configuration for Ingress |
+
+---
+
+## Files Created
+
+### Kubernetes Manifests (k8s/)
+| File | Purpose |
+|------|---------|
+| namespace.yaml | Namespace definition |
+| configmap.yaml | Application configuration |
+| secret.yaml | Database credentials |
+| deployment.yaml | Task service deployment |
+| service.yaml | NodePort service |
+| postgres-statefulset.yaml | PostgreSQL with persistent storage |
+| ingress.yaml | Ingress routing rules |
+| ingress-nginx-patch.yaml | Fix for Kind scheduling |
+
+### Scripts (scripts/)
+| File | Purpose |
+|------|---------|
+| setup-cluster.sh | Full cluster setup automation |
+
+### Configuration
+| File | Purpose |
+|------|---------|
+| kind-config.yaml | Kind cluster with port mappings |
 
 ---
 
 ## Next Steps
 
-Ready for **Module 5: Kubernetes Concepts** where you'll learn:
-- Kubernetes architecture (control plane, worker nodes)
-- Core resources: Pods, Deployments, Services
-- ConfigMaps and Secrets
+Ready for **Module 10: Operations & Observability** where you'll learn:
+- Manual and auto-scaling (HPA)
+- Rolling updates and rollbacks
+- Logging and monitoring basics
 
-Type "start module 5" to continue!
+Type "start module 10" to continue!
