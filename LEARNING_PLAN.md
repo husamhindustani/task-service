@@ -566,32 +566,71 @@ kubectl logs deployment/task-service --previous
 
 ---
 
-## Module 11: CI/CD Pipeline
+## Module 11: CI/CD Pipeline ✅ COMPLETED
 
-### Step 11.1: Pipeline Design
-- [ ] Understand CI vs CD
-- [ ] Design your pipeline stages
-- [ ] Choose a CI/CD tool (GitHub Actions)
+### Step 11.1: Pipeline Design ✅
+- [x] Understand CI vs CD
+- [x] Design pipeline stages
+- [x] Choose GitHub Actions
 
-**Pipeline stages:**
-```
-Code Push → Build → Test → Image Build → Push → Deploy
-```
+**Key concepts covered:**
+- CI = Build, test, create artifacts on every push
+- CD = Deploy artifacts to environments
+- Pipeline: Code Push → Build → Test → Docker Build → Push to Registry
 
-### Step 11.2: Continuous Integration
-- [ ] Create GitHub Actions workflow
-- [ ] Configure Java build and test
-- [ ] Add Docker build step
+### Step 11.2: Continuous Integration ✅
+- [x] Created GitHub Actions workflow
+- [x] Configured Java build with Maven
+- [x] Added Docker build and push step
+- [x] Set up GitHub secrets for Docker Hub
 
-### Step 11.3: Continuous Deployment
-- [ ] Add image push to registry
-- [ ] Configure kubectl in CI
-- [ ] Deploy to Kubernetes
+**Files created:**
+- `.github/workflows/ci-cd.yaml` - Complete CI pipeline
 
-### Step 11.4: GitOps Introduction
-- [ ] Understand GitOps principles
-- [ ] (Optional) Set up ArgoCD
-- [ ] Declarative deployments from Git
+**Key concepts covered:**
+- GitHub Actions runs on cloud VMs (ubuntu-latest)
+- Jobs run in isolation, artifacts pass files between jobs
+- Secrets store sensitive credentials securely
+- Git SHA tagging for automatic versioning
+
+### Step 11.3: Continuous Deployment ⏸️ NEXT UP
+- [ ] Set up GKE (Google Kubernetes Engine) cluster
+- [ ] Configure service account for GitHub Actions
+- [ ] Add deployment step to workflow
+- [ ] Test end-to-end: push → build → deploy
+
+**Planned approach:**
+- Use GKE Autopilot with free credits
+- Push-based CD from GitHub Actions
+
+### Step 11.4: GitOps Introduction ✅ (Conceptual)
+- [x] Understand Push vs Pull deployment models
+- [x] Understand GitOps principles (ArgoCD, Flux)
+- [ ] (Optional) Hands-on ArgoCD setup
+
+**Key concepts covered:**
+- Push-based: CI/CD pushes to cluster (GitHub Actions)
+- Pull-based: Controller in cluster pulls from Git (ArgoCD)
+- GitOps benefits: Git as single source of truth, auto-drift correction
+
+---
+
+## Module 11B: Cloud Deployment with GKE ⬜ NOT STARTED
+
+### Step 11B.1: GKE Setup
+- [ ] Create Google Cloud account with free credits
+- [ ] Install gcloud CLI
+- [ ] Create GKE Autopilot cluster
+
+### Step 11B.2: GitHub Actions CD
+- [ ] Create GCP service account
+- [ ] Configure Workload Identity or service account key
+- [ ] Add deploy job to workflow
+
+### Step 11B.3: End-to-End Test
+- [ ] Push code change
+- [ ] Watch automated build and deploy
+- [ ] Verify running in cloud
 
 ---
 
@@ -712,7 +751,8 @@ task-service/
 | Module 8: Deploy Stateful | ✅ Completed | StatefulSet, PV/PVC, Headless Service |
 | Module 9: K8s Networking | ✅ Completed | DNS, Ingress, CORS fix |
 | Module 10: Operations | ✅ Completed | Scaling, Rolling Updates, Rollbacks, HPA, Logging |
-| Module 11: CI/CD | ⬜ Not Started | |
+| Module 11: CI/CD | ✅ Completed | GitHub Actions, Docker Hub push, GitOps concepts |
+| Module 11B: GKE CD | ⬜ Not Started | Cloud deployment next! |
 | Module 12: Production | ⬜ Not Started | |
 
 ---
@@ -749,6 +789,11 @@ task-service/
 |------|---------|
 | setup-cluster.sh | Full cluster setup automation |
 
+### CI/CD (.github/workflows/)
+| File | Purpose |
+|------|---------|
+| ci-cd.yaml | GitHub Actions pipeline (build, test, push to Docker Hub) |
+
 ### Configuration
 | File | Purpose |
 |------|---------|
@@ -758,9 +803,14 @@ task-service/
 
 ## Next Steps
 
-Ready for **Module 11: CI/CD Pipeline** where you'll learn:
-- GitHub Actions for automated builds
-- Docker image building and pushing in CI
-- Automated deployment to Kubernetes
+Ready for **Module 11B: Cloud Deployment with GKE** where you'll learn:
+- Setting up Google Kubernetes Engine (GKE) with free credits
+- Configuring GitHub Actions for cloud deployment
+- End-to-end automated CI/CD to production Kubernetes
 
-Type "start module 11" to continue!
+**Prerequisites for next session:**
+1. Create Google Cloud account: https://cloud.google.com/free
+2. $300 free credits for 90 days (new accounts)
+3. Install gcloud CLI: `brew install google-cloud-sdk`
+
+Type "start module 11B" to continue!
