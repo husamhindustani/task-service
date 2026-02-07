@@ -493,51 +493,76 @@ postgres → postgres.task-service-ns.svc.cluster.local → ClusterIP → Pod IP
 
 ---
 
-## Module 10: Operations & Observability
+## Module 10: Operations & Observability ✅ COMPLETED
 
-### Step 10.1: Scaling
-- [ ] Scale deployment manually: `kubectl scale`
-- [ ] Understand Horizontal Pod Autoscaler (HPA)
-- [ ] Configure HPA based on CPU/memory
+### Step 10.1: Scaling ✅
+- [x] Scale deployment manually with `kubectl scale`
+- [x] Understand imperative vs declarative scaling
+- [x] Configure Horizontal Pod Autoscaler (HPA)
 
-**Commands:**
+**Key concepts covered:**
+- Imperative scaling: quick, one-time, not tracked in Git
+- Declarative scaling: edit manifest, reproducible, GitOps-friendly
+- HPA scales based on CPU/memory utilization
+
+**Commands mastered:**
 ```bash
-kubectl scale deployment myapp --replicas=5
-kubectl autoscale deployment myapp --min=2 --max=10 --cpu-percent=80
+kubectl scale deployment/task-service --replicas=4
+kubectl autoscale deployment task-service --cpu-percent=50 --min=2 --max=5
+kubectl get hpa
+kubectl top pods
 ```
 
-### Step 10.2: Rolling Updates
-- [ ] Update deployment image
-- [ ] Watch rolling update progress
-- [ ] Understand update strategies
+### Step 10.2: Rolling Updates ✅
+- [x] Update deployment image with `kubectl set image`
+- [x] Watch rolling update progress
+- [x] Understand maxSurge and maxUnavailable
 
-**Commands:**
+**Key concepts covered:**
+- Rolling updates replace pods gradually (no downtime)
+- ReadinessProbe must pass before old pod is terminated
+- Default: 25% maxSurge, 25% maxUnavailable
+
+**Commands mastered:**
 ```bash
-kubectl set image deployment/myapp myapp=yourusername/myapp:v2
-kubectl rollout status deployment/myapp
-kubectl rollout history deployment/myapp
+kubectl set image deployment/task-service task-service=image:v1.0.2
+kubectl rollout status deployment/task-service
+kubectl rollout history deployment/task-service
 ```
 
-### Step 10.3: Rollbacks
-- [ ] Perform a rollback
-- [ ] Understand revision history
-- [ ] Best practices for safe rollouts
+### Step 10.3: Rollbacks ✅
+- [x] Perform rollback with `kubectl rollout undo`
+- [x] Understand revision history
+- [x] Record change cause with annotations
 
-**Commands:**
+**Commands mastered:**
 ```bash
-kubectl rollout undo deployment/myapp
-kubectl rollout undo deployment/myapp --to-revision=2
+kubectl rollout undo deployment/task-service
+kubectl rollout undo deployment/task-service --to-revision=2
+kubectl annotate deployment/task-service kubernetes.io/change-cause="reason"
 ```
 
-### Step 10.4: Logging
-- [ ] Access pod logs
-- [ ] Understand log aggregation concepts
-- [ ] (Optional) Set up centralized logging
+### Step 10.4: Logging ✅
+- [x] Access pod logs with various options
+- [x] View logs from multiple pods using label selector
+- [x] Understand `--previous` flag for crashed containers
 
-### Step 10.5: Monitoring
-- [ ] Understand metrics collection
-- [ ] (Optional) Deploy Prometheus + Grafana
-- [ ] Create basic dashboards
+**Commands mastered:**
+```bash
+kubectl logs deployment/task-service
+kubectl logs -l app=task-service
+kubectl logs -l app=task-service -f --tail=50
+kubectl logs deployment/task-service --previous
+```
+
+### Step 10.5: HPA & Metrics ✅
+- [x] Installed metrics-server for Kind
+- [x] Created HPA manifest with scaling behavior
+- [x] Understand CPU utilization targets
+
+**Files created:**
+- `k8s/hpa.yaml` - HPA with autoscaling/v2 API
+- Updated `scripts/setup-cluster.sh` with metrics-server
 
 ---
 
@@ -686,7 +711,7 @@ task-service/
 | Module 7: Deploy Stateless | ✅ Completed | Deployment, Service, Probes, ConfigMap/Secret |
 | Module 8: Deploy Stateful | ✅ Completed | StatefulSet, PV/PVC, Headless Service |
 | Module 9: K8s Networking | ✅ Completed | DNS, Ingress, CORS fix |
-| Module 10: Operations | ⬜ Not Started | Next up! |
+| Module 10: Operations | ✅ Completed | Scaling, Rolling Updates, Rollbacks, HPA, Logging |
 | Module 11: CI/CD | ⬜ Not Started | |
 | Module 12: Production | ⬜ Not Started | |
 
@@ -733,9 +758,9 @@ task-service/
 
 ## Next Steps
 
-Ready for **Module 10: Operations & Observability** where you'll learn:
-- Manual and auto-scaling (HPA)
-- Rolling updates and rollbacks
-- Logging and monitoring basics
+Ready for **Module 11: CI/CD Pipeline** where you'll learn:
+- GitHub Actions for automated builds
+- Docker image building and pushing in CI
+- Automated deployment to Kubernetes
 
-Type "start module 10" to continue!
+Type "start module 11" to continue!
