@@ -1,18 +1,28 @@
-# Kind cluster configuration with NodePort exposure
+# Kind cluster configuration with Ingress support
 # This maps ports from the Kind container to your Mac's localhost
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
-  # Control plane node
+  # Control plane node with ingress-ready label
   - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
     extraPortMappings:
-      # Map NodePort 30080 to localhost:30080
+      # HTTP for Ingress
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+      # HTTPS for Ingress
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+      # Keep NodePort for direct access
       - containerPort: 30080
         hostPort: 30080
-        protocol: TCP
-      # Map NodePort 30081 for future services
-      - containerPort: 30081
-        hostPort: 30081
         protocol: TCP
   # Worker nodes
   - role: worker

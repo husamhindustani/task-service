@@ -1,0 +1,38 @@
+# Ingress resource for task-service
+# Routes external HTTP traffic to the service
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: task-service-ingress
+  namespace: task-service-ns
+  labels:
+    app: task-service
+  annotations:
+    # nginx-specific annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # Specify which ingress controller should handle this
+  ingressClassName: nginx
+  rules:
+    # Host-based routing (optional - comment out to match any host)
+    - host: task.local
+      http:
+        paths:
+          # Route all traffic to task-service
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: task-service
+                port:
+                  number: 8080
+    # Also allow access without hostname (for testing)
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: task-service
+                port:
+                  number: 8080
