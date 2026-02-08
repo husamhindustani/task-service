@@ -5,8 +5,10 @@
 # Excluding files makes the build context smaller and faster to transfer.
 # =============================================================================
 
-# Build output (we rebuild inside Docker)
-target/
+# Build output (we rebuild inside Docker for multi-stage builds)
+# But allow JARs for CI builds (Dockerfile.ci)
+target/*
+!target/*.jar
 
 # IDE files
 .idea/
