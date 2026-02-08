@@ -615,7 +615,7 @@ kubectl logs deployment/task-service --previous
 
 ---
 
-## Module 11B: Cloud Deployment with GKE ✅ IN PROGRESS
+## Module 11B: Cloud Deployment with GKE ✅ COMPLETED
 
 ### Step 11B.1: GKE Setup ✅
 - [x] Create Google Cloud account with free credits
@@ -655,11 +655,18 @@ kubectl logs deployment/task-service --previous
 - `Dockerfile.ci` - CI-specific Dockerfile (no Maven build)
 - `.dockerignore` - Allow JAR files through
 
-### Step 11B.4: Automated CD to GKE ⏸️ NEXT
-- [ ] Create GCP service account for GitHub Actions
-- [ ] Configure Workload Identity Federation (recommended) or service account key
-- [ ] Add deploy job to workflow
-- [ ] Test end-to-end: push → build → deploy
+### Step 11B.4: Automated CD to GKE ✅
+- [x] Create GCP service account (`github-actions`)
+- [x] Grant `container.developer` role (least privilege)
+- [x] Generate service account key and store in GitHub Secrets (`GKE_SA_KEY`)
+- [x] Add deploy job to workflow using `google-github-actions/auth` and `setup-gcloud`
+- [x] Test end-to-end: push → build → deploy → live in ~5 minutes
+
+**Key concepts covered:**
+- Service accounts vs user accounts (machine identity for automation)
+- IAM roles and principle of least privilege
+- `kubectl set image` for rolling updates via CI/CD
+- Full pipeline: git push → build → test → docker → deploy
 
 ---
 
@@ -781,7 +788,7 @@ task-service/
 | Module 9: K8s Networking | ✅ Completed | DNS, Ingress, CORS fix |
 | Module 10: Operations | ✅ Completed | Scaling, Rolling Updates, Rollbacks, HPA, Logging |
 | Module 11: CI/CD | ✅ Completed | GitHub Actions, Docker Hub push, GitOps concepts |
-| Module 11B: GKE CD | 🔄 In Progress | GKE deployed! Automated CD next |
+| Module 11B: GKE CD | ✅ Completed | Full CI/CD to GKE! |
 | Module 12: Production | ⬜ Not Started | |
 
 ---
@@ -821,7 +828,7 @@ task-service/
 ### CI/CD (.github/workflows/)
 | File | Purpose |
 |------|---------|
-| ci-cd.yaml | GitHub Actions pipeline (build, test, push to Docker Hub) |
+| ci-cd.yaml | GitHub Actions pipeline (build, test, Docker push, GKE deploy) |
 
 ### Configuration
 | File | Purpose |
@@ -832,20 +839,26 @@ task-service/
 
 ## Next Steps
 
-**Current status:** GKE cluster running with your app deployed!
+**🎉 CI/CD Complete!** Full pipeline working: git push → build → Docker → GKE deploy
 
-**GKE Endpoint:** http://34.71.175.100
+**GKE Endpoint:** http://34.71.175.100 (API version 1.1.0)
 
-**Next:** Complete automated CD (Step 11B.4)
-- Create GCP service account
-- Add deploy job to GitHub Actions
-- Push code → Auto-deploy to GKE
+**Next:** Module 12 - Production Considerations
+- Security hardening
+- Resource management
+- Monitoring and alerting
+- Backup strategies
 
-Type "continue module 11B" to finish automated CD!
+Type "start module 12" to continue!
 
 ---
 
-**Important:** Remember to delete your GKE cluster when done learning to avoid charges:
+**⚠️ Important:** Remember to delete your GKE cluster when done learning to avoid charges:
 ```bash
 gcloud container clusters delete task-cluster --region=us-central1 --project=ci-cd-gke-learn
 ```
+
+**GitHub Secrets configured:**
+- `DOCKERHUB_USERNAME` - Docker Hub username
+- `DOCKERHUB_TOKEN` - Docker Hub access token
+- `GKE_SA_KEY` - GCP service account key for GKE deployment
