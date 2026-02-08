@@ -701,6 +701,108 @@ kubectl logs deployment/task-service --previous
 
 ---
 
+## Module 13: Helm ⬜ NOT STARTED
+
+Package manager for Kubernetes: charts = templated manifests + values. One chart, many environments; upgrade/rollback built in.
+
+### Step 13.1: Helm basics
+- [ ] Install Helm (`brew install helm`)
+- [ ] Understand: chart, release, values, template rendering
+- [ ] Commands: `helm install`, `helm upgrade`, `helm rollback`, `helm uninstall`, `helm list`
+
+### Step 13.2: Create a chart from existing manifests
+- [ ] `helm create task-service` (scaffold) or create chart by hand
+- [ ] Move/copy deployment, service, configmap, etc. into `templates/` with Go templating
+- [ ] Add `values.yaml` for image tag, replica count, resources, env
+- [ ] Install on Kind: `helm install task-service ./charts/task-service -n task-service-ns --create-namespace`
+- [ ] Change values and run `helm upgrade`
+
+### Step 13.3: Use a community chart
+- [ ] Add repo: `helm repo add bitnami https://charts.bitnami.com/bitnami`
+- [ ] Install PostgreSQL: `helm install postgres bitnami/postgresql --set ...`
+- [ ] Compare with our hand-written StatefulSet; understand chart values
+
+### Step 13.4: Integrate with CI/CD (optional)
+- [ ] In GitHub Actions: install Helm, run `helm upgrade --install` with image tag from build
+- [ ] Or keep `kubectl set image` and use Helm only for local/scripted installs
+
+**Key concepts:** Chart structure (`Chart.yaml`, `values.yaml`, `templates/`), `{{ .Values.xxx }}`, release lifecycle, `helm template` for dry-run.
+
+---
+
+## Module 14: Secrets Management ⬜ NOT STARTED
+
+Store secrets outside the cluster (or in a dedicated store) and sync them into Kubernetes. Avoid plain secrets in Git or long-lived static K8s Secrets.
+
+### Step 14.1: Why external secrets
+- [ ] Limits of in-cluster Secrets (base64, in etcd, in Git if templated)
+- [ ] Production pattern: single source of truth (Vault, GCP Secret Manager, AWS Secrets Manager)
+- [ ] Sync model: operator creates/updates K8s Secrets from external store
+
+### Step 14.2: Choose a backend (one path)
+- [ ] **GCP Secret Manager:** Create secret in GCP, grant GKE workload access (Workload Identity or SA key)
+- [ ] **HashiCorp Vault:** Run Vault (dev mode or server), configure Kubernetes auth
+- [ ] **AWS Secrets Manager:** If using EKS; IAM roles for service accounts
+
+### Step 14.3: External Secrets Operator (ESO)
+- [ ] Install ESO in cluster: `helm install external-secrets oci://registry-1.docker.io/bitnamicharts/external-secrets`
+- [ ] Create a `SecretStore` or `ClusterSecretStore` pointing at your backend (GCP/Vault/AWS)
+- [ ] Create `ExternalSecret` resources that reference the store and map external secret keys to a K8s Secret
+- [ ] Replace existing `task-service-secrets` with an ExternalSecret; remove static `k8s/secret.yaml` from Git (or keep a placeholder)
+
+### Step 14.4: Integrate with Task Service
+- [ ] Store DB credentials in backend; ESO syncs to `task-service-secrets`
+- [ ] Verify app still starts and connects; rotate secret in backend and confirm ESO updates
+
+**Key concepts:** SecretStore, ExternalSecret, refresh interval, least-privilege IAM for the operator and backend access.
+
+---
+
+## Module 15: Service Mesh ⬜ NOT STARTED
+
+Service mesh adds security (mTLS), traffic control (retries, splitting, canary), and observability at the network layer between pods. Pick one mesh (e.g. Istio or Linkerd).
+
+### Step 15.1: What a service mesh does
+- [ ] Sidecar proxy per pod (or per-node) intercepts pod traffic
+- [ ] mTLS between services without app code changes
+- [ ] Traffic management: retries, timeouts, canary/percentage splits
+- [ ] Observability: golden metrics (latency, traffic, errors) from the mesh
+
+### Step 15.2: Install mesh on Kind (choose one)
+- [ ] **Linkerd:** Lighter; `linkerd install | kubectl apply -f -`; inject namespace
+- [ ] **Istio:** More features; `istioctl install`; inject namespace or enable sidecar for task-service-ns
+
+### Step 15.3: mTLS and policy
+- [ ] Enable strict mTLS (mesh-wide or per namespace)
+- [ ] Verify traffic is encrypted (e.g. see certs in proxy or mesh dashboard)
+- [ ] Optional: AuthorizationPolicy (Istio) or Server/Client resources (Linkerd) to restrict who can call what
+
+### Step 15.4: Traffic control (optional)
+- [ ] VirtualService (Istio) or ServiceProfile (Linkerd): retries, timeouts
+- [ ] Canary: route a percentage of traffic to a new version
+
+### Step 15.5: Observability (optional)
+- [ ] Use mesh metrics/dashboards for latency and success rate
+- [ ] Optional: integrate with Prometheus/Grafana if you add monitoring later
+
+**Key concepts:** Sidecar injection, mTLS, mesh authority/trust domain, traffic split, observability from proxies. Best tried after you’re comfortable with one service and want to prepare for many services.
+
+---
+
+## Other core areas (optional – add if you want)
+
+Topics not yet in the learning plan. Say which (if any) you want added as modules.
+
+| Area | What it is | Why consider it |
+|------|------------|------------------|
+| **Monitoring & observability** | Prometheus (metrics), Grafana (dashboards), Alertmanager; optionally OpenTelemetry/Jaeger (tracing). | HPA + logs; this adds metrics, graphs, and alerts for load, errors, SLOs. |
+| **GitOps (hands-on)** | Argo CD or Flux: deploy from Git, drift correction, audit. | Turn Module 11 GitOps concept into a real workflow. |
+| **Kustomize** | Base + overlays (dev/staging/prod) with `kubectl apply -k`. | Multi-environment without Helm; lighter option. |
+
+**Already added as modules:** Helm (13), Secrets Management (14), Service Mesh (15).
+
+---
+
 ## Troubleshooting Guide
 
 Common issues encountered during this course and their solutions:
@@ -793,6 +895,9 @@ task-service/
 | Module 11: CI/CD | ✅ Completed | GitHub Actions, Docker Hub push, GitOps concepts |
 | Module 11B: GKE CD | ✅ Completed | Full CI/CD to GKE! |
 | Module 12: Production | ✅ Completed | Security, PDB, HA anti-affinity, QoS |
+| Module 13: Helm | ⬜ Not Started | Charts, values, releases |
+| Module 14: Secrets Management | ⬜ Not Started | ESO, Vault/GCP Secret Manager |
+| Module 15: Service Mesh | ⬜ Not Started | Istio/Linkerd, mTLS, traffic control |
 
 ---
 
@@ -845,7 +950,7 @@ task-service/
 
 ## Next Steps
 
-**🎉 Course complete!** All 12 modules finished.
+**🎉 Core course complete!** Modules 1–12 done. Module 13 (Helm) and optional topics available.
 
 **What you have:**
 - Java REST API + PostgreSQL, containerized and orchestrated on Kind and GKE
@@ -854,6 +959,8 @@ task-service/
 
 **GKE (when cluster is running):**  
 - Endpoint: `http://<EXTERNAL_IP>` — get IP with `kubectl get svc task-service -n task-service-ns`
+
+**Next (optional):** Module 13 – Helm; Module 14 – Secrets Management; Module 15 – Service Mesh. See “Other core areas” for Monitoring, GitOps, Kustomize.
 
 **Scripts:**
 - Kind: `./scripts/setup-cluster.sh` — create/recreate local cluster
