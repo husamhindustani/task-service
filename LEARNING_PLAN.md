@@ -615,22 +615,51 @@ kubectl logs deployment/task-service --previous
 
 ---
 
-## Module 11B: Cloud Deployment with GKE ⬜ NOT STARTED
+## Module 11B: Cloud Deployment with GKE ✅ IN PROGRESS
 
-### Step 11B.1: GKE Setup
-- [ ] Create Google Cloud account with free credits
-- [ ] Install gcloud CLI
-- [ ] Create GKE Autopilot cluster
+### Step 11B.1: GKE Setup ✅
+- [x] Create Google Cloud account with free credits
+- [x] Install gcloud CLI (`brew install google-cloud-sdk`)
+- [x] Authenticate (`gcloud auth login --no-launch-browser`)
+- [x] Create project `ci-cd-gke-learn`
+- [x] Link billing account
+- [x] Enable APIs (container, artifactregistry)
+- [x] Create GKE Autopilot cluster (`task-cluster` in `us-central1`)
 
-### Step 11B.2: GitHub Actions CD
-- [ ] Create GCP service account
-- [ ] Configure Workload Identity or service account key
+**Key concepts covered:**
+- GKE Autopilot vs Standard (node management, pricing)
+- gcloud CLI authentication and project management
+- kubectl context switching between Kind and GKE
+
+### Step 11B.2: Manual Deployment to GKE ✅
+- [x] Created GKE-specific manifests (`k8s/gke/`)
+- [x] Fixed StorageClass for GKE (`standard-rwo`)
+- [x] Used LoadBalancer service type (creates Google Cloud LB)
+- [x] Deployed PostgreSQL and Task Service
+- [x] Verified endpoints working via public IP
+
+**Files created:**
+- `k8s/gke/service.yaml` - LoadBalancer service
+- `k8s/gke/postgres-statefulset.yaml` - GKE storage class
+
+**GKE Endpoint:** `http://34.71.175.100`
+
+### Step 11B.3: Multi-Platform Docker Builds ✅
+- [x] Fixed architecture mismatch (arm64 vs amd64)
+- [x] Added QEMU for cross-platform builds
+- [x] Created `Dockerfile.ci` for CI builds (uses pre-built JAR)
+- [x] Updated `.dockerignore` to allow JAR files
+- [x] Verified both linux/amd64 and linux/arm64 in manifest
+
+**Files created/modified:**
+- `Dockerfile.ci` - CI-specific Dockerfile (no Maven build)
+- `.dockerignore` - Allow JAR files through
+
+### Step 11B.4: Automated CD to GKE ⏸️ NEXT
+- [ ] Create GCP service account for GitHub Actions
+- [ ] Configure Workload Identity Federation (recommended) or service account key
 - [ ] Add deploy job to workflow
-
-### Step 11B.3: End-to-End Test
-- [ ] Push code change
-- [ ] Watch automated build and deploy
-- [ ] Verify running in cloud
+- [ ] Test end-to-end: push → build → deploy
 
 ---
 
@@ -752,7 +781,7 @@ task-service/
 | Module 9: K8s Networking | ✅ Completed | DNS, Ingress, CORS fix |
 | Module 10: Operations | ✅ Completed | Scaling, Rolling Updates, Rollbacks, HPA, Logging |
 | Module 11: CI/CD | ✅ Completed | GitHub Actions, Docker Hub push, GitOps concepts |
-| Module 11B: GKE CD | ⬜ Not Started | Cloud deployment next! |
+| Module 11B: GKE CD | 🔄 In Progress | GKE deployed! Automated CD next |
 | Module 12: Production | ⬜ Not Started | |
 
 ---
@@ -803,14 +832,20 @@ task-service/
 
 ## Next Steps
 
-Ready for **Module 11B: Cloud Deployment with GKE** where you'll learn:
-- Setting up Google Kubernetes Engine (GKE) with free credits
-- Configuring GitHub Actions for cloud deployment
-- End-to-end automated CI/CD to production Kubernetes
+**Current status:** GKE cluster running with your app deployed!
 
-**Prerequisites for next session:**
-1. Create Google Cloud account: https://cloud.google.com/free
-2. $300 free credits for 90 days (new accounts)
-3. Install gcloud CLI: `brew install google-cloud-sdk`
+**GKE Endpoint:** http://34.71.175.100
 
-Type "start module 11B" to continue!
+**Next:** Complete automated CD (Step 11B.4)
+- Create GCP service account
+- Add deploy job to GitHub Actions
+- Push code → Auto-deploy to GKE
+
+Type "continue module 11B" to finish automated CD!
+
+---
+
+**Important:** Remember to delete your GKE cluster when done learning to avoid charges:
+```bash
+gcloud container clusters delete task-cluster --region=us-central1 --project=ci-cd-gke-learn
+```
