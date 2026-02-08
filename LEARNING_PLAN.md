@@ -670,7 +670,7 @@ kubectl logs deployment/task-service --previous
 
 ---
 
-## Module 12: Production Considerations
+## Module 12: Production Considerations ✅ COMPLETED
 
 ### Step 12.1: Security ✅
 - [x] Run containers as non-root (Dockerfile + K8s runAsUser: 100)
@@ -792,7 +792,7 @@ task-service/
 | Module 10: Operations | ✅ Completed | Scaling, Rolling Updates, Rollbacks, HPA, Logging |
 | Module 11: CI/CD | ✅ Completed | GitHub Actions, Docker Hub push, GitOps concepts |
 | Module 11B: GKE CD | ✅ Completed | Full CI/CD to GKE! |
-| Module 12: Production | ⬜ Not Started | |
+| Module 12: Production | ✅ Completed | Security, PDB, HA anti-affinity, QoS |
 
 ---
 
@@ -845,26 +845,22 @@ task-service/
 
 ## Next Steps
 
-**🎉 CI/CD Complete!** Full pipeline working: git push → build → Docker → GKE deploy
+**🎉 Course complete!** All 12 modules finished.
 
-**GKE Endpoint:** http://34.71.175.100 (API version 1.1.0)
+**What you have:**
+- Java REST API + PostgreSQL, containerized and orchestrated on Kind and GKE
+- Full CI/CD: push to main → build → test → Docker push → deploy to GKE
+- Production-style settings: security contexts, PDB, HA anti-affinity, resource limits
 
-**Next:** Module 12 - Production Considerations
-- Security hardening
-- Resource management
-- Monitoring and alerting
-- Backup strategies
+**GKE (when cluster is running):**  
+- Endpoint: `http://<EXTERNAL_IP>` — get IP with `kubectl get svc task-service -n task-service-ns`
 
-Type "start module 12" to continue!
+**Scripts:**
+- Kind: `./scripts/setup-cluster.sh` — create/recreate local cluster
+- GKE: `./scripts/setup-gke-cluster.sh` — create cluster and deploy
+- GKE: `./scripts/setup-gke-cluster.sh --delete-first` — delete and recreate
+- GKE: `./scripts/delete-gke-cluster.sh` — delete cluster (stops billing)
 
----
+**⚠️ Remember:** Delete the GKE cluster when not in use to avoid charges (use `delete-gke-cluster.sh` or the `gcloud` command above).
 
-**⚠️ Important:** Remember to delete your GKE cluster when done learning to avoid charges:
-```bash
-gcloud container clusters delete task-cluster --region=us-central1 --project=ci-cd-gke-learn
-```
-
-**GitHub Secrets configured:**
-- `DOCKERHUB_USERNAME` - Docker Hub username
-- `DOCKERHUB_TOKEN` - Docker Hub access token
-- `GKE_SA_KEY` - GCP service account key for GKE deployment
+**GitHub Secrets configured:** `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `GKE_SA_KEY`
