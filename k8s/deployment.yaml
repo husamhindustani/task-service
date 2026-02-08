@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: task-service
-          image: husamhindustani/task-service:1.0.2
+          image: husamhindustani/task-service:latest
           ports:
             - containerPort: 8080
           

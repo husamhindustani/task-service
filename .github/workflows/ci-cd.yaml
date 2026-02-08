@@ -73,6 +73,10 @@ jobs:
           name: task-service-jar
           path: target/
 
+      # Set up QEMU for multi-platform builds
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       # Set up Docker Buildx for better builds
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -92,12 +96,13 @@ jobs:
           echo "sha_tag=$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "Image will be tagged as: $SHA_SHORT and latest"
 
-      # Build and push Docker image
+      # Build and push Docker image (multi-platform)
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64  # Build for both Intel and Apple Silicon
           tags: |
             ${{ env.DOCKER_IMAGE }}:${{ steps.tags.outputs.sha_tag }}
             ${{ env.DOCKER_IMAGE }}:latest

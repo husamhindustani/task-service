@@ -1,0 +1,17 @@
+# GKE Service - Uses LoadBalancer for external access
+# GKE automatically provisions a Google Cloud Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-service
+  namespace: task-service-ns
+  labels:
+    app: task-service
+spec:
+  type: LoadBalancer  # GKE creates a real cloud load balancer
+  selector:
+    app: task-service
+  ports:
+    - name: http
+      port: 80          # External port (standard HTTP)
+      targetPort: 8080  # Container port
