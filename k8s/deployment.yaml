@@ -15,11 +15,44 @@ spec:
       labels:
         app: task-service
     spec:
+      # Pod-level security context
+      securityContext:
+        runAsNonRoot: true           # Reject if container tries to run as root
+        runAsUser: 100               # UID of appuser (created by adduser -S in Alpine)
+        runAsGroup: 101              # GID of appgroup
+        fsGroup: 101                 # Files created will have this group
+        seccompProfile:
+          type: RuntimeDefault       # Use container runtime's default seccomp profile
+      
+      # High availability: prefer spreading pods across nodes/zones
+      affinity:
+        podAntiAffinity:
+          # Soft preference: prefer not to run two replicas on the same node/zone
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: task-service
+                topologyKey: topology.kubernetes.io/zone  # Spread across GKE zones
+      
       containers:
         - name: task-service
           image: husamhindustani/task-service:latest
           ports:
             - containerPort: 8080
+          
+          # Container-level security context
+          securityContext:
+            allowPrivilegeEscalation: false  # Can't gain more privileges
+            readOnlyRootFilesystem: true     # Can't write to filesystem
+            capabilities:
+              drop: ["ALL"]                  # Drop all Linux capabilities
+          
+          # Mount writable /tmp for Java (needed despite readOnlyRootFilesystem)
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
           
           # Environment variables from ConfigMap and Secret
           envFrom:
@@ -69,3 +102,8 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 30  # 30 * 5s = 150s max startup time
+      
+      # Volumes for the pod
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}  # Writable temp storage (lives as long as the pod)

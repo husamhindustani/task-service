@@ -1,0 +1,16 @@
+# Pod Disruption Budget for task-service
+# Limits how many pods can be unavailable during voluntary disruptions
+# (e.g. node drain, cluster upgrade, GKE maintenance)
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: task-service
+  namespace: task-service-ns
+  labels:
+    app: task-service
+spec:
+  # At least 1 replica must remain available during disruption
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: task-service

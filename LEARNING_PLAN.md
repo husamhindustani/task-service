@@ -672,31 +672,32 @@ kubectl logs deployment/task-service --previous
 
 ## Module 12: Production Considerations
 
-### Step 12.1: Security
-- [ ] Run containers as non-root (already done in Dockerfile)
-- [ ] Use security contexts
-- [ ] Implement network policies
-- [ ] Scan images for vulnerabilities
+### Step 12.1: Security ✅
+- [x] Run containers as non-root (Dockerfile + K8s runAsUser: 100)
+- [x] Use security contexts (pod + container: runAsNonRoot, seccomp, readOnlyRootFilesystem, capabilities drop)
+- [x] Writable /tmp via emptyDir for Java
+- [ ] Network policies (optional)
+- [ ] Image scanning (optional)
 
-### Step 12.2: Resource Management
-- [ ] Set appropriate resource requests/limits
-- [ ] Understand QoS classes
-- [ ] Configure pod disruption budgets
+### Step 12.2: Resource Management ✅
+- [x] Resource requests/limits (deployment: 256Mi–512Mi, 250m–500m CPU)
+- [x] QoS: Burstable (requests ≠ limits)
+- [x] Pod Disruption Budget: `k8s/pdb.yaml` (minAvailable: 1)
 
-### Step 12.3: High Availability
-- [ ] Deploy across availability zones
-- [ ] Configure pod anti-affinity
-- [ ] Database replication strategies
+### Step 12.3: High Availability ✅
+- [x] Pod anti-affinity (deployment: prefer spread across zones via `topology.kubernetes.io/zone`)
+- [x] Soft preference (`preferredDuringSchedulingIgnoredDuringExecution`) so scheduling still works with 1 node
+- [ ] Database replication: conceptual (primary/replica, failover; use managed DB or operators for production)
 
-### Step 12.4: Backup & Disaster Recovery
-- [ ] Database backup strategies
-- [ ] Velero for cluster backup
-- [ ] Disaster recovery planning
+### Step 12.4: Backup & Disaster Recovery (Conceptual)
+- **Database backup:** pg_dump/pg_basebackup, scheduled jobs, store in GCS/S3
+- **Velero:** backs up cluster state (PVs, objects) to object storage; restore to new cluster
+- **DR planning:** RTO/RPO, runbooks, test restores
 
-### Step 12.5: Database in Production
-- [ ] Consider managed databases (RDS, Cloud SQL)
-- [ ] Database operators (CloudNativePG, Zalando)
-- [ ] Connection pooling (PgBouncer)
+### Step 12.5: Database in Production (Conceptual)
+- **Managed DB (Cloud SQL, RDS):** no node/disk management, automated backups, HA options
+- **Operators:** CloudNativePG, Zalando Postgres – automate backup, failover, scaling in-cluster
+- **Connection pooling:** PgBouncer or similar – reduces DB connections, helps under load
 
 ---
 
@@ -768,7 +769,9 @@ task-service/
 │   ├── ingress.yaml              # Ingress routing
 │   └── ingress-nginx-patch.yaml  # Kind-specific fix
 ├── scripts/
-│   └── setup-cluster.sh          # Cluster setup automation
+│   ├── setup-cluster.sh          # Kind cluster setup
+│   ├── setup-gke-cluster.sh      # GKE cluster create + deploy
+│   └── delete-gke-cluster.sh     # GKE cluster delete
 └── .github/workflows/            # (To be created in Module 11)
     └── deploy.yaml               # CI/CD pipeline
 ```
@@ -819,11 +822,14 @@ task-service/
 | postgres-statefulset.yaml | PostgreSQL with persistent storage |
 | ingress.yaml | Ingress routing rules |
 | ingress-nginx-patch.yaml | Fix for Kind scheduling |
+| pdb.yaml | Pod Disruption Budget (minAvailable: 1) |
 
 ### Scripts (scripts/)
 | File | Purpose |
 |------|---------|
-| setup-cluster.sh | Full cluster setup automation |
+| setup-cluster.sh | Kind cluster: create, Ingress, metrics-server, deploy app, PDB |
+| setup-gke-cluster.sh | GKE Autopilot: create cluster, deploy app (LoadBalancer, GKE manifests) |
+| delete-gke-cluster.sh | Delete GKE cluster (stops billing) |
 
 ### CI/CD (.github/workflows/)
 | File | Purpose |
