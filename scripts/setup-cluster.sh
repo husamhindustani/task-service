@@ -1,8 +1,14 @@
 #!/bin/bash
-# Setup script for Kind cluster with Ingress and HPA support
+# Setup script for Kind cluster with Ingress, HPA, and PDB
 # Usage: ./scripts/setup-cluster.sh
+# Run from repo root, or any directory (script will cd to repo root)
 
 set -e  # Exit on error
+
+# Ensure we run from repo root (where kind-config.yaml and k8s/ live)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
 
 CLUSTER_NAME="task-cluster"
 
@@ -42,11 +48,12 @@ kubectl wait --namespace task-service-ns \
   --selector=app=postgres \
   --timeout=120s
 
-echo "=== Step 9: Apply application deployment, service, ingress, and HPA ==="
+echo "=== Step 9: Apply application deployment, service, ingress, HPA, and PDB ==="
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
 kubectl apply -f k8s/ingress.yaml
 kubectl apply -f k8s/hpa.yaml
+kubectl apply -f k8s/pdb.yaml
 
 echo "=== Step 10: Wait for task-service to be ready ==="
 kubectl wait --namespace task-service-ns \
@@ -68,5 +75,8 @@ echo ""
 echo "Useful commands:"
 echo "  kubectl get pods              # List pods (namespace already set)"
 echo "  kubectl get hpa               # Check autoscaler status"
+echo "  kubectl get pdb               # Pod Disruption Budget status"
 echo "  kubectl top pods              # View resource usage"
 echo "  kubectl logs -l app=task-service -f  # Follow logs"
+echo ""
+echo "To tear down: kind delete cluster --name $CLUSTER_NAME"
