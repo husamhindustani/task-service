@@ -23,8 +23,8 @@ public class OpenApiConfig {
         return new OpenAPI()
             .info(new Info()
                 .title("Task Service API")
-                .version("1.0.0")
-                .description("REST API for managing tasks"))
+                .version("1.1.0")
+                .description("REST API for managing tasks - Deployed via CI/CD!"))
             .servers(List.of(
                 // Relative URL - uses whatever host/port the browser accessed
                 new Server().url("/").description("Current server"),
