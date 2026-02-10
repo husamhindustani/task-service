@@ -730,27 +730,82 @@ Package manager for Kubernetes: charts = templated manifests + values. One chart
 
 ---
 
-## Module 14: Secrets Management ⬜ NOT STARTED
+## Module 14: KEDA ⬜ NOT STARTED
+
+Kubernetes Event-Driven Autoscaling. Scale workloads (including to zero) based on external events (queues, HTTP, cron, DB lag, etc.), not only CPU/memory like HPA.
+
+### Step 14.1: KEDA basics
+- [ ] Understand: scale to zero; ScaledObject vs HPA; event-driven triggers
+- [ ] Common triggers: Prometheus, Kafka, Redis, Cron, HTTP (KEDA HTTP add-on), etc.
+- [ ] When to use KEDA vs HPA (events/external metrics vs CPU/memory)
+
+### Step 14.2: Install KEDA
+- [ ] Install on Kind (or existing cluster): Helm chart or `kubectl apply` from KEDA repo
+- [ ] Verify KEDA controller and CRDs (ScaledObject, TriggerAuthentication, etc.)
+
+### Step 14.3: Use a ScaledObject
+- [ ] Create a ScaledObject for a deployment (e.g. scale on Cron schedule or HTTP queue depth)
+- [ ] Observe scale-from-zero and scale-to-zero behavior
+- [ ] Optional: connect a real trigger (e.g. Redis list length, Prometheus query)
+
+**Key concepts:** ScaledObject, scaling to zero, trigger types, co-existence with HPA.
+
+---
+
+## Module 15: Core resource types (mandatory) ⬜ NOT STARTED
+
+Beyond Pods, Deployment, StatefulSet, Service: DaemonSet, Job, CronJob, NetworkPolicy. These are core to many production clusters.
+
+### Step 15.1: DaemonSet (mandatory)
+- [ ] Understand: one pod per node (or per matching node); node-level workloads
+- [ ] Use cases: log collectors (Fluentd), node monitors, storage/network agents
+- [ ] Create a simple DaemonSet (e.g. busybox or a tiny daemon); verify one pod per node
+
+### Step 15.2: Job (mandatory)
+- [ ] Understand: run to completion (exit 0); retries; backoff
+- [ ] Use cases: batch jobs, migrations, one-off tasks
+- [ ] Create a Job; observe completion and pod status (Completed)
+
+### Step 15.3: CronJob (mandatory)
+- [ ] Understand: Job on a schedule (cron expression)
+- [ ] Use cases: scheduled backups, cleanup, reports
+- [ ] Create a CronJob; verify it creates Jobs on schedule (or use a short schedule for testing)
+
+### Step 15.4: NetworkPolicy (mandatory)
+- [ ] Understand: allow/deny pod-to-pod (and egress) traffic by label
+- [ ] Default: no policy = all traffic allowed (when CNI supports it)
+- [ ] Create a NetworkPolicy (e.g. only allow task-service to talk to postgres; deny other ingress to postgres)
+- [ ] Verify traffic is allowed/denied as expected
+
+### Step 15.5: Optional – ResourceQuota & LimitRange
+- [ ] **ResourceQuota:** Cap total CPU/memory/PVCs per namespace; useful for multi-tenant
+- [ ] **LimitRange:** Default and max requests/limits for containers in a namespace; enforce “every container has limits”
+
+**Key concepts:** DaemonSet scheduling, Job completion and retries, CronJob schedule, NetworkPolicy ingress/egress rules and podSelector.
+
+---
+
+## Module 16: Secrets Management ⬜ NOT STARTED
 
 Store secrets outside the cluster (or in a dedicated store) and sync them into Kubernetes. Avoid plain secrets in Git or long-lived static K8s Secrets.
 
-### Step 14.1: Why external secrets
+### Step 16.1: Why external secrets
 - [ ] Limits of in-cluster Secrets (base64, in etcd, in Git if templated)
 - [ ] Production pattern: single source of truth (Vault, GCP Secret Manager, AWS Secrets Manager)
 - [ ] Sync model: operator creates/updates K8s Secrets from external store
 
-### Step 14.2: Choose a backend (one path)
+### Step 16.2: Choose a backend (one path)
 - [ ] **GCP Secret Manager:** Create secret in GCP, grant GKE workload access (Workload Identity or SA key)
 - [ ] **HashiCorp Vault:** Run Vault (dev mode or server), configure Kubernetes auth
 - [ ] **AWS Secrets Manager:** If using EKS; IAM roles for service accounts
 
-### Step 14.3: External Secrets Operator (ESO)
+### Step 16.3: External Secrets Operator (ESO)
 - [ ] Install ESO in cluster: `helm install external-secrets oci://registry-1.docker.io/bitnamicharts/external-secrets`
 - [ ] Create a `SecretStore` or `ClusterSecretStore` pointing at your backend (GCP/Vault/AWS)
 - [ ] Create `ExternalSecret` resources that reference the store and map external secret keys to a K8s Secret
 - [ ] Replace existing `task-service-secrets` with an ExternalSecret; remove static `k8s/secret.yaml` from Git (or keep a placeholder)
 
-### Step 14.4: Integrate with Task Service
+### Step 16.4: Integrate with Task Service
 - [ ] Store DB credentials in backend; ESO syncs to `task-service-secrets`
 - [ ] Verify app still starts and connects; rotate secret in backend and confirm ESO updates
 
@@ -758,30 +813,30 @@ Store secrets outside the cluster (or in a dedicated store) and sync them into K
 
 ---
 
-## Module 15: Service Mesh ⬜ NOT STARTED
+## Module 17: Service Mesh ⬜ NOT STARTED
 
 Service mesh adds security (mTLS), traffic control (retries, splitting, canary), and observability at the network layer between pods. Pick one mesh (e.g. Istio or Linkerd).
 
-### Step 15.1: What a service mesh does
+### Step 17.1: What a service mesh does
 - [ ] Sidecar proxy per pod (or per-node) intercepts pod traffic
 - [ ] mTLS between services without app code changes
 - [ ] Traffic management: retries, timeouts, canary/percentage splits
 - [ ] Observability: golden metrics (latency, traffic, errors) from the mesh
 
-### Step 15.2: Install mesh on Kind (choose one)
+### Step 17.2: Install mesh on Kind (choose one)
 - [ ] **Linkerd:** Lighter; `linkerd install | kubectl apply -f -`; inject namespace
 - [ ] **Istio:** More features; `istioctl install`; inject namespace or enable sidecar for task-service-ns
 
-### Step 15.3: mTLS and policy
+### Step 17.3: mTLS and policy
 - [ ] Enable strict mTLS (mesh-wide or per namespace)
 - [ ] Verify traffic is encrypted (e.g. see certs in proxy or mesh dashboard)
 - [ ] Optional: AuthorizationPolicy (Istio) or Server/Client resources (Linkerd) to restrict who can call what
 
-### Step 15.4: Traffic control (optional)
+### Step 17.4: Traffic control (optional)
 - [ ] VirtualService (Istio) or ServiceProfile (Linkerd): retries, timeouts
 - [ ] Canary: route a percentage of traffic to a new version
 
-### Step 15.5: Observability (optional)
+### Step 17.5: Observability (optional)
 - [ ] Use mesh metrics/dashboards for latency and success rate
 - [ ] Optional: integrate with Prometheus/Grafana if you add monitoring later
 
@@ -799,7 +854,7 @@ Topics not yet in the learning plan. Say which (if any) you want added as module
 | **GitOps (hands-on)** | Argo CD or Flux: deploy from Git, drift correction, audit. | Turn Module 11 GitOps concept into a real workflow. |
 | **Kustomize** | Base + overlays (dev/staging/prod) with `kubectl apply -k`. | Multi-environment without Helm; lighter option. |
 
-**Already added as modules:** Helm (13), Secrets Management (14), Service Mesh (15).
+**Already added as modules:** Helm (13), KEDA (14), Core resource types (15), Secrets Management (16), Service Mesh (17).
 
 ---
 
@@ -896,8 +951,10 @@ task-service/
 | Module 11B: GKE CD | ✅ Completed | Full CI/CD to GKE! |
 | Module 12: Production | ✅ Completed | Security, PDB, HA anti-affinity, QoS |
 | Module 13: Helm | ⬜ Not Started | Charts, values, releases |
-| Module 14: Secrets Management | ⬜ Not Started | ESO, Vault/GCP Secret Manager |
-| Module 15: Service Mesh | ⬜ Not Started | Istio/Linkerd, mTLS, traffic control |
+| Module 14: KEDA | ⬜ Not Started | Event-driven autoscaling, scale to zero |
+| Module 15: Core resource types | ⬜ Not Started | DaemonSet, Job, CronJob, NetworkPolicy |
+| Module 16: Secrets Management | ⬜ Not Started | ESO, Vault/GCP Secret Manager |
+| Module 17: Service Mesh | ⬜ Not Started | Istio/Linkerd, mTLS, traffic control |
 
 ---
 
@@ -960,7 +1017,7 @@ task-service/
 **GKE (when cluster is running):**  
 - Endpoint: `http://<EXTERNAL_IP>` — get IP with `kubectl get svc task-service -n task-service-ns`
 
-**Next (optional):** Module 13 – Helm; Module 14 – Secrets Management; Module 15 – Service Mesh. See “Other core areas” for Monitoring, GitOps, Kustomize.
+**Next (optional):** Module 13 – Helm; Module 14 – KEDA; Module 15 – Core resource types (DaemonSet, Job, CronJob, NetworkPolicy); Module 16 – Secrets; Module 17 – Service Mesh. See “Other core areas” for Monitoring, GitOps, Kustomize.
 
 **Scripts:**
 - Kind: `./scripts/setup-cluster.sh` — create/recreate local cluster
